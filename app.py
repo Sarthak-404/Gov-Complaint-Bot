@@ -27,13 +27,27 @@ query_prompt = ChatPromptTemplate.from_template(
     """
     You are a complaint assistant. Your task is to categorize user complaints into the following categories:
     'Corruption', 'Crime', 'Electricity Issue', 'Public Transport', 'Road Maintenance', 'Water Supply'.
-    Sub Category: 'Billing Issue', 'Blocked Drainage', 'Bribery', 'Chain Snatching', 'Contaminated Water', 'Cyber Crime', 'Fare Overcharging', 'Favoritism in Govt Services', 'Fraud in Public Distribution', 'Irregular Metro Services', 'Land Registration Scam', 'Low Pressure', 'Meter Fault', 'No Water Supply', 'Overcrowded Buses', 'Pipeline Leakage','Poor Bus Condition', 'Potholes', 'Power Outage', 'Road Safety Issues', 'Robbery', 'Theft', 'Unfinished Roadwork', 'Voltage Fluctuation'.
     Keep it short, about 50 words.
     Based on the user's complaint, tell them which department it has been assigned to and respond with:
     'Your complaint is registered in "Category" with "Sub Category" and will be attended to shortly.'
     Complaint: {input}
     """
 )
+
+category_prompt = ChatPromptTemplate.from_template("""
+    You are a complaint assistant. Your task is to categorize user complaints into the following categories:
+    'Corruption', 'Crime', 'Electricity Issue', 'Public Transport', 'Road Maintenance', 'Water Supply'.
+    Output should be: "Category"
+    Complaint: {input}
+""")
+
+subcategory_prompt = ChatPromptTemplate.from_template("""
+    You are a complaint assistant. Your task is to categorize user complaints into the following sub categories:
+    'Billing Issue', 'Blocked Drainage', 'Bribery', 'Chain Snatching', 'Contaminated Water', 'Cyber Crime', 'Fare Overcharging', 'Favoritism in Govt Services', 'Fraud in Public Distribution', 'Irregular Metro Services', 'Land Registration Scam', 'Low Pressure', 'Meter Fault', 'No Water Supply', 'Overcrowded Buses', 'Pipeline Leakage','Poor Bus Condition', 'Potholes', 'Power Outage', 'Road Safety Issues', 'Robbery', 'Theft', 'Unfinished Roadwork', 'Voltage Fluctuation'.
+    Output should be: "Sub Category"
+    Complaint: {input}
+""")
+
 
 def process_complaint(complaint):
     main_query = query_prompt.invoke({'input': complaint})
@@ -43,8 +57,16 @@ def process_complaint(complaint):
     urgency_query = urgency_prompt.invoke({'input': complaint})
     urgent = llm.invoke(urgency_query)
     urgent_content = urgent.content
+
+    category_query = category_prompt.invoke({'input': complaint})
+    cat = llm.invoke(category_query)
+    category = cat.content
+
+    subcategory_query = subcategory_prompt.invoke({'input': complaint})
+    subcat = llm.invoke(subcategory_query)
+    subcategory = subcat.content
     
-    return department, urgent_content
+    return department, urgent_content, category, subcategory
 
 # Load BLIP model
 processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
@@ -70,10 +92,12 @@ def handle_complaint():
     if not complaint:
         return jsonify({"error": "Complaint text is required"}), 400
     
-    department, urgent = process_complaint(complaint)
+    department, urgent, category, subcategory = process_complaint(complaint)
     return jsonify({
         "department": department,
-        "urgent": urgent
+        "urgent": urgent,
+        "Category": category,
+        "Subcategory": subcategory
     })
 
 @app.route('/caption', methods=['POST'])
