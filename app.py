@@ -25,12 +25,12 @@ urgency_prompt = ChatPromptTemplate.from_template(
 
 query_prompt = ChatPromptTemplate.from_template(
     """
-    You are a complaint assistant. Your task is to categorize user complaints into the following departments:
-    Healthcare Ministry, Police, Public Works Department (PWD), Food Quality Ministry, Cleaning and Welfare Ministry, or Traffic Department.
-    Also analyze the state of the complaint to declare it as an emergency and if it needs to be, tell the user it is an emergency complaint.
+    You are a complaint assistant. Your task is to categorize user complaints into the following categories:
+    'Corruption', 'Crime', 'Electricity Issue', 'Public Transport', 'Road Maintenance', 'Water Supply'.
+    Sub Category: 'Billing Issue', 'Blocked Drainage', 'Bribery', 'Chain Snatching', 'Contaminated Water', 'Cyber Crime', 'Fare Overcharging', 'Favoritism in Govt Services', 'Fraud in Public Distribution', 'Irregular Metro Services', 'Land Registration Scam', 'Low Pressure', 'Meter Fault', 'No Water Supply', 'Overcrowded Buses', 'Pipeline Leakage','Poor Bus Condition', 'Potholes', 'Power Outage', 'Road Safety Issues', 'Robbery', 'Theft', 'Unfinished Roadwork', 'Voltage Fluctuation'.
     Keep it short, about 50 words.
     Based on the user's complaint, tell them which department it has been assigned to and respond with:
-    'Your complaint is registered with "Department name" and will be attended to shortly.'
+    'Your complaint is registered in "Category" with "Sub Category" and will be attended to shortly.'
     Complaint: {input}
     """
 )
